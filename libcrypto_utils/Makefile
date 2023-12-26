@@ -15,7 +15,7 @@ CFLAGS += -DPROP_NAME_MAX=32 -DPROP_VALUE_MAX=92
 all: $(LOCAL_MODULE)
 
 %.o: %.c
-	gcc -g -c -fPIC $(CFLAGS) $(LFLAGS) $< -o $@
+	arm-linux-gnueabi-gcc -g -c -fPIC $(CFLAGS) $(LFLAGS) $< -o $@
 
 $(LOCAL_MODULE): $(OBJS)
 	ar rcs $@ $?

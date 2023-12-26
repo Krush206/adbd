@@ -59,10 +59,10 @@ CXXFLAGS = $(OPT_CXXFLAGS) $(EXTRA_CFLAGS)
 all: $(LOCAL_MODULE)
 
 %.o: %.cpp
-	g++ -c -fPIC $(CXXFLAGS) $(LFLAGS) $< -o $@
+	arm-linux-gnueabi-g++ -c -fPIC $(CXXFLAGS) $(LFLAGS) $< -o $@
 
 %.o: %.c
-	gcc -c -fPIC $(CFLAGS) $(LFLAGS) $< -o $@
+	arm-linux-gnueabi-gcc -c -fPIC $(CFLAGS) $(LFLAGS) $< -o $@
 
 $(LOCAL_MODULE): $(OBJS)
 	ar rcs $@ $?

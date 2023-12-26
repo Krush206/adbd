@@ -71,19 +71,11 @@ CXXFLAGS = $(OPT_CXXFLAGS) -std=c++14 $(LOCAL_CFLAGS) $(LOCAL_INCLUDES)
 CFLAGS= $(OPT_CFLAGS) $(LOCAL_CFLAGS) $(LOCAL_INCLUDES)
 
 %.o: %.cpp
-	g++ -g -c -fPIC $(CXXFLAGS) $(LFLAGS) $< -o $@
-
-%.o: %.c
-	gcc -g -c -fPIC $(CFLAGS) $(LFLAGS) $< -o $@
-
-all: $(LOCAL_MODULE) xdg-adbd
+	arm-linux-gnueabi-g++ -g -c -fPIC $(CXXFLAGS) $(LFLAGS) $< -o $@
 
 $(LOCAL_MODULE): $(OBJS)
-	g++ -fPIC $(CXXFLAGS) $^ -L ../libcutils/*.o ../base/*.o ../libcrypto_utils/*.o -lpthread -lresolv -lcrypto -lssl -lutil -o $@
-
-xdg-adbd: xdg-adbd.c
-	gcc -o $@ $< $(CFLAGS) $(LFLAGS) `pkg-config --libs --cflags glib-2.0`
+	arm-linux-gnueabi-g++ -static -fPIC $(CXXFLAGS) $^ -L ../libcutils/*.o ../base/*.o ../libcrypto_utils/*.o -lpthread -lresolv -lcrypto -lssl -lutil -o $@
 
 clean:
-	rm -f $(LOCAL_MODULE) xdg-adbd *.o daemon/*.o
+	rm -f $(LOCAL_MODULE) *.o daemon/*.o
 
