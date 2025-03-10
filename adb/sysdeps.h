@@ -294,6 +294,8 @@ extern char*  adb_strtok_r(char *str, const char *delim, char **saveptr);
     _rc; })
 #endif
 
+#include <sys/types.h>
+#include <sys/socket.h>
 #define OS_PATH_SEPARATOR '/'
 #define OS_PATH_SEPARATOR_STR "/"
 #define ENV_PATH_SEPARATOR_STR ":"

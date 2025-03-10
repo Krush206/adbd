@@ -89,7 +89,7 @@ include $(BUILD_HOST_STATIC_LIBRARY)
 all: $(LOCAL_MODULE)
 
 %.o: %.c
-	arm-linux-gnueabihf-gcc $(LOCAL_CFLAGS) -c -I../include -o $@ $<
+	gcc $(LOCAL_CFLAGS) -c -I../include -o $@ $<
 
 $(LOCAL_MODULE): $(OBJS)
 	ar rcs $@ $?
