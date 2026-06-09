@@ -349,6 +349,7 @@ static mutex_t  env_lock = MUTEX_INITIALIZER;
 
 int property_get(const char *key, char *value, const char *default_value)
 {
+#if 0
     char ename[PROPERTY_KEY_MAX + 6];
     char *p;
     int len;
@@ -376,11 +377,16 @@ int property_get(const char *key, char *value, const char *default_value)
     }
 
     mutex_unlock(&env_lock);
+#endif
+    
+    value = default_value;
+    return 0;
 }
 
 
 int property_set(const char *key, const char *value)
 {
+#if 0
     char ename[PROPERTY_KEY_MAX + 6];
     char *p;
     int len;
@@ -405,6 +411,9 @@ int property_set(const char *key, const char *value)
     r = setenv(ename, value, 1);
 #endif    
     mutex_unlock(&env_lock);
+#endif
+    
+    return 0;
 }
 
 int property_list(void (*propfn)(const char *key, const char *value, void *cookie), 

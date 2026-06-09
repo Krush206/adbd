@@ -26,6 +26,7 @@
 #include <time.h>
 #include <sys/time.h>
 #include <stdint.h>
+#include <grp.h>
 
 #include "sysdeps.h"
 #include "adb.h"
@@ -39,6 +40,7 @@
 #include <sys/mount.h>
 #include <sys/prctl.h>
 #include <getopt.h>
+#include <selinux/selinux.h>
 #else
 #include "usb_vendors.h"
 #endif
@@ -145,61 +147,15 @@ void  adb_trace_init(void)
     }
 }
 
-#if 0
+#if !ADB_HOST
 /*
  * Implements ADB tracing inside the emulator.
  */
 
-#include <stdarg.h>
-
-/*
- * Redefine open and write for qemu_pipe.h that contains inlined references
- * to those routines. We will redifine them back after qemu_pipe.h inclusion.
- */
-
-#undef open
-#undef write
-#define open    adb_open
-#define write   adb_write
-#include <hardware/qemu_pipe.h>
-#undef open
-#undef write
-#define open    ___xxx_open
-#define write   ___xxx_write
-
-/* A handle to adb-debug qemud service in the emulator. */
-int   adb_debug_qemu = -1;
-
 /* Initializes connection with the adb-debug qemud service in the emulator. */
 static int adb_qemu_trace_init(void)
 {
-    char con_name[32];
-
-    if (adb_debug_qemu >= 0) {
-        return 0;
-    }
-
-    /* adb debugging QEMUD service connection request. */
-    snprintf(con_name, sizeof(con_name), "qemud:adb-debug");
-    adb_debug_qemu = qemu_pipe_open(con_name);
-    return (adb_debug_qemu >= 0) ? 0 : -1;
-}
-
-void adb_qemu_trace(const char* fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-    char msg[1024];
-
-    if (adb_debug_qemu >= 0) {
-        vsnprintf(msg, sizeof(msg), fmt, args);
-        adb_write(adb_debug_qemu, msg, strlen(msg));
-    }
-}
-#else
-static int adb_qemu_trace_init(void)
-{
-    return 0;
+    return -1;
 }
 
 void adb_qemu_trace(const char* fmt, ...)
@@ -316,7 +272,7 @@ static size_t fill_connect_data(char *buf, size_t bufsize)
     buf += len;
     for (i = 0; i < num_cnxn_props; i++) {
         char value[PROPERTY_VALUE_MAX];
-        property_get(cnxn_props[i], value, "ADB non-Android");
+        property_get(cnxn_props[i], value, "");
         len = snprintf(buf, remaining, "%s=%s;", cnxn_props[i], value);
         remaining -= len;
         buf += len;
@@ -1386,6 +1342,12 @@ int adb_main(int is_daemon, int server_port)
         D("Local port disabled\n");
     } else {
         char local_name[30];
+        if ((root_seclabel != NULL) && (is_selinux_enabled() > 0)) {
+            // b/12587913: fix setcon to allow const pointers
+            if (setcon((char *)root_seclabel) < 0) {
+                exit(1);
+            }
+        }
         build_local_name(local_name, sizeof(local_name), server_port);
         if(install_listener(local_name, "*smartsocket*", NULL, 0)) {
             exit(1);

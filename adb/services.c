@@ -93,11 +93,7 @@ void restart_tcp_service(int fd, void *cookie)
 
 void restart_usb_service(int fd, void *cookie)
 {
-    char buf[100];
-
-    snprintf(buf, sizeof(buf), "already in USB/TCP mode, but restarting anyway\n");
-    writex(fd, buf, strlen(buf));
-    adb_close(fd);
+    restart_tcp_service(fd, cookie);
 }
 
 void reboot_service(int fd, void *arg)
@@ -287,11 +283,7 @@ static int create_subproc_raw(const char *cmd, const char *arg0, const char *arg
 }
 #endif  /* !ABD_HOST */
 
-#if ADB_HOST
 #define SHELL_COMMAND "/bin/sh"
-#else
-#define SHELL_COMMAND "/system/bin/sh"
-#endif
 
 #if !ADB_HOST
 static void subproc_waiter_service(int fd, void *cookie)

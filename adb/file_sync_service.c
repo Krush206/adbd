@@ -26,6 +26,7 @@
 
 #include <errno.h>
 #include <private/android_filesystem_config.h>
+#include <selinux/restorecon.h>
 #include "sysdeps.h"
 
 #define TRACE_TAG  TRACE_SYNC
@@ -72,6 +73,7 @@ static int mkdirs(char *name)
                 *x = '/';
                 return ret;
             }
+            selinux_restorecon(name, 0);
         }
         *x++ = '/';
     }
@@ -249,6 +251,7 @@ static int handle_send_file(int s, char *path, uid_t uid,
     if(fd >= 0) {
         struct utimbuf u;
         adb_close(fd);
+        selinux_restorecon(path, 0);
         u.actime = timestamp;
         u.modtime = timestamp;
         utime(path, &u);
